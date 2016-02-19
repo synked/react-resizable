@@ -11,7 +11,7 @@ export default class TestLayout extends React.Component {
   };
 
   onResize = (event, {element, size}) => {
-    this.setState({width: size.width, height: size.height});
+    this.setState({width: size.width, height: size.height });
   };
 
   render() {
@@ -41,7 +41,11 @@ export default class TestLayout extends React.Component {
         <ResizableBox className="box" width={200} height={120} lockAspectRatio={true}>
           <span className="text">Resizable rectangle with a locked aspect ratio.</span>
         </ResizableBox>
-
+        <Resizable className="box" width={this.state.width} onResize={this.onResize}>
+          <div className="box" style={{width: this.state.width + 'px', height: 'auto', display: 'inline-block'}}>
+            Auto height box
+          </div>
+        </Resizable>
       </div>
     );
   }
