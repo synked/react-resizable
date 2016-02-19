@@ -85,7 +85,7 @@ export default class Resizable extends React.Component {
     }
   }
 
-  getPixelSize() {
+  getPixelSize(): Object {
     const { width, height } = this.props;
     let size = { width, height };
     const node = ReactDOM.findDOMNode(this);
@@ -99,7 +99,7 @@ export default class Resizable extends React.Component {
   }
 
   lockAspectRatio(width: number | string, height: number | string, aspectRatio: number): [number, number] {
-    let size = this.getPixelSize()
+    let size = this.getPixelSize();
     height = size.width / aspectRatio;
     width = size.height * aspectRatio;
     return [width, height];
@@ -110,7 +110,7 @@ export default class Resizable extends React.Component {
     let [min, max] = [this.props.minConstraints, this.props.maxConstraints];
 
     if (this.props.lockAspectRatio) {
-      const sizes = this.getPixelSize()
+      const sizes = this.getPixelSize();
       const ratio = sizes.width / sizes.height;
       height = width / ratio;
       width = height * ratio;
