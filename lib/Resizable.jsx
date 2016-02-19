@@ -10,7 +10,7 @@ type Position = {
 };
 type State = {
   resizing: boolean,
-  width: number | string, height: number | string,
+  width: number, height: number,
   slackW: number, slackH: number
 };
 type DragCallbackData = {
@@ -74,13 +74,26 @@ export default class Resizable extends React.Component {
     slackW: 0, slackH: 0
   };
 
+  componentDidMount() {
+    const size = this.getPixelSize();
+    if(size.width !== this.state.width || size.height !== this.state.height) {
+      this.setState({
+        width: size.width,
+        height: size.height,
+      });
+    }
+  }
+
   componentWillReceiveProps(nextProps: Object) {
     // If parent changes height/width, set that in our state.
     if (!this.state.resizing &&
-        (nextProps.width !== this.props.width || nextProps.height !== this.props.height)) {
+        (nextProps.width !== this.props.width
+          || nextProps.height !== this.props.height)) {
+
+      const size = this.getPixelSize();
       this.setState({
-        width: nextProps.width,
-        height: nextProps.height
+        width: size.width,
+        height: size.height
       });
     }
   }
@@ -98,10 +111,9 @@ export default class Resizable extends React.Component {
     return size;
   }
 
-  lockAspectRatio(width: number | string, height: number | string, aspectRatio: number): [number, number] {
-    let size = this.getPixelSize();
-    height = size.width / aspectRatio;
-    width = size.height * aspectRatio;
+  lockAspectRatio(width: number, height: number, aspectRatio: number): [number, number] {
+    height = width / aspectRatio;
+    width = height * aspectRatio;
     return [width, height];
   }
 
@@ -110,8 +122,7 @@ export default class Resizable extends React.Component {
     let [min, max] = [this.props.minConstraints, this.props.maxConstraints];
 
     if (this.props.lockAspectRatio) {
-      const sizes = this.getPixelSize();
-      const ratio = sizes.width / sizes.height;
+      const ratio = this.state.width / this.state.height;
       height = width / ratio;
       width = height * ratio;
     }
@@ -156,8 +167,7 @@ export default class Resizable extends React.Component {
     return (e, {node, position}: DragCallbackData) => {
       const {deltaX, deltaY} = position;
 
-      const size = this.getPixelSize();
-      let width = size.width + deltaX, height = size.height + deltaY;
+      let width = this.state.width + deltaX, height = this.state.height + deltaY;
 
       // Early return if no change
       let widthChanged = width !== this.state.width, heightChanged = height !== this.state.height;
@@ -173,7 +183,7 @@ export default class Resizable extends React.Component {
         newState.resizing = false;
       } else {
         // Early return if no change after constraints
-        if (width === size.width && height === size.height) return;
+        if (width === this.state.width && height === this.state.height) return;
         newState.width = width;
         newState.height = height;
       }
