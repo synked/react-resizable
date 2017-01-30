@@ -1,8 +1,9 @@
 // @flow
 import {default as React, PropTypes} from 'react';
 import Resizable from './Resizable';
+import type {Props as ResizableProps} from './Resizable';
 
-type State = {width: number, height: number, aspectRatio: number};
+type State = {width: number, height: number};
 type Size = {width: number, height: number};
 type ResizeData = {element: Element, size: Size};
 
@@ -12,6 +13,7 @@ export default class ResizableBox extends React.Component {
     height: PropTypes.number,
     width: PropTypes.number
   };
+  props: ResizableProps;
 
   static defaultProps = {
     handleSize: [20,20]
@@ -22,21 +24,32 @@ export default class ResizableBox extends React.Component {
     height: this.props.height,
   };
 
-  onResize = (event, {element, size}) => {
-    let {width, height} = size;
+  onResize = (e: Event, {element, size}: ResizeData) => {
+    const {width, height} = size;
 
-    this.setState(size, () => {
-      this.props.onResize && this.props.onResize(event, {element, size});
-    });
+    if (this.props.onResize) {
+      e.persist && e.persist();
+      this.setState(size, () => this.props.onResize(e, {element, size}));
+    } else {
+      this.setState(size);
+    }
   };
-  onResize: (event: Event, data: ResizeData) => void;
 
-  render(): ReactElement {
+  componentWillReceiveProps(nextProps: ResizableProps) {
+    if (nextProps.width !== this.props.width || nextProps.height !== this.props.height) {
+      this.setState({
+        width: nextProps.width,
+        height: nextProps.height
+      });
+    }
+  }
+
+  render(): React.Element<any> {
     // Basic wrapper around a Resizable instance.
     // If you use Resizable directly, you are responsible for updating the child component
     // with a new width and height.
-    let {handleSize, onResizeStart, onResizeStop, draggableOpts,
-         minConstraints, maxConstraints, lockAspectRatio, ...props} = this.props;
+    const {handleSize, onResize, onResizeStart, onResizeStop, draggableOpts,
+         minConstraints, maxConstraints, lockAspectRatio, axis, width, height, ...props} = this.props;
     return (
       <Resizable
         handleSize={handleSize}
@@ -49,6 +62,7 @@ export default class ResizableBox extends React.Component {
         minConstraints={minConstraints}
         maxConstraints={maxConstraints}
         lockAspectRatio={lockAspectRatio}
+        axis={axis}
         >
         <div style={{width: this.state.width + 'px', height: this.state.height + 'px'}} {...props} />
       </Resizable>
