@@ -1,12 +1,8 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
@@ -26,14 +22,18 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/*:: import type {Props as ResizableProps} from './Resizable';*/
+/*:: type State = {width: number, height: number};*/
+/*:: type Size = {width: number, height: number};*/
+
+
 // An example use of Resizable.
+/*:: type ResizeData = {element: Element, size: Size};*/
 
 var ResizableBox = function (_React$Component) {
   _inherits(ResizableBox, _React$Component);
 
   function ResizableBox() {
-    var _Object$getPrototypeO;
-
     var _temp, _this, _ret;
 
     _classCallCheck(this, ResizableBox);
@@ -42,57 +42,72 @@ var ResizableBox = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(ResizableBox)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, _React$Component.call.apply(_React$Component, [this].concat(args))), _this), _this.state = {
       width: _this.props.width,
       height: _this.props.height
-    }, _this.onResize = function (event, _ref) {
-      var element = _ref.element;
-      var size = _ref.size;
-      var width = size.width;
-      var height = size.height;
+    }, _this.onResize = function (e /*: Event*/, _ref) {
+      var element = _ref.element,
+          size = _ref.size;
+      var width = size.width,
+          height = size.height;
 
 
-      _this.setState(size, function () {
-        _this.props.onResize && _this.props.onResize(event, { element: element, size: size });
-      });
+      if (_this.props.onResize) {
+        e.persist && e.persist();
+        _this.setState(size, function () {
+          return _this.props.onResize(e, { element: element, size: size });
+        });
+      } else {
+        _this.setState(size);
+      }
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
-  _createClass(ResizableBox, [{
-    key: 'render',
-    value: function render() {
-      // Basic wrapper around a Resizable instance.
-      // If you use Resizable directly, you are responsible for updating the child component
-      // with a new width and height.
-      var _props = this.props;
-      var handleSize = _props.handleSize;
-      var onResizeStart = _props.onResizeStart;
-      var onResizeStop = _props.onResizeStop;
-      var draggableOpts = _props.draggableOpts;
-      var minConstraints = _props.minConstraints;
-      var maxConstraints = _props.maxConstraints;
-      var lockAspectRatio = _props.lockAspectRatio;
-
-      var props = _objectWithoutProperties(_props, ['handleSize', 'onResizeStart', 'onResizeStop', 'draggableOpts', 'minConstraints', 'maxConstraints', 'lockAspectRatio']);
-
-      return _react2.default.createElement(
-        _Resizable2.default,
-        {
-          handleSize: handleSize,
-          width: this.state.width,
-          height: this.state.height,
-          onResizeStart: onResizeStart,
-          onResize: this.onResize,
-          onResizeStop: onResizeStop,
-          draggableOpts: draggableOpts,
-          minConstraints: minConstraints,
-          maxConstraints: maxConstraints,
-          lockAspectRatio: lockAspectRatio
-        },
-        _react2.default.createElement('div', _extends({ style: { width: this.state.width + 'px', height: this.state.height + 'px' } }, props))
-      );
+  ResizableBox.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps /*: ResizableProps*/) {
+    if (nextProps.width !== this.props.width || nextProps.height !== this.props.height) {
+      this.setState({
+        width: nextProps.width,
+        height: nextProps.height
+      });
     }
-  }]);
+  };
+
+  ResizableBox.prototype.render = function render() /*: React.Element<any>*/ {
+    // Basic wrapper around a Resizable instance.
+    // If you use Resizable directly, you are responsible for updating the child component
+    // with a new width and height.
+    var _props = this.props,
+        handleSize = _props.handleSize,
+        onResize = _props.onResize,
+        onResizeStart = _props.onResizeStart,
+        onResizeStop = _props.onResizeStop,
+        draggableOpts = _props.draggableOpts,
+        minConstraints = _props.minConstraints,
+        maxConstraints = _props.maxConstraints,
+        lockAspectRatio = _props.lockAspectRatio,
+        axis = _props.axis,
+        width = _props.width,
+        height = _props.height,
+        props = _objectWithoutProperties(_props, ['handleSize', 'onResize', 'onResizeStart', 'onResizeStop', 'draggableOpts', 'minConstraints', 'maxConstraints', 'lockAspectRatio', 'axis', 'width', 'height']);
+
+    return _react2.default.createElement(
+      _Resizable2.default,
+      {
+        handleSize: handleSize,
+        width: this.state.width,
+        height: this.state.height,
+        onResizeStart: onResizeStart,
+        onResize: this.onResize,
+        onResizeStop: onResizeStop,
+        draggableOpts: draggableOpts,
+        minConstraints: minConstraints,
+        maxConstraints: maxConstraints,
+        lockAspectRatio: lockAspectRatio,
+        axis: axis
+      },
+      _react2.default.createElement('div', _extends({ style: { width: this.state.width + 'px', height: this.state.height + 'px' } }, props))
+    );
+  };
 
   return ResizableBox;
 }(_react2.default.Component);
